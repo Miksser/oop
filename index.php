@@ -112,6 +112,43 @@ class BookProduct extends ShopProduct
 
 }
 
+abstract class ShopProductWriter
+{
+    protected $products = [];
+
+    public function addProduct(ShopProduct $shopProduct)
+    {
+        $this->products[]=$shopProduct;
+    }
+
+    abstract public function write();
+}
+
+
+class XmlProductWriter extends ShopProductWriter
+{
+    public function write()
+    {
+        // TODO: Implement write() method.
+        $writer = new XMLWriter();
+        $writer->openMemory();
+        $writer->startDocument('1.0', 'UTF-8');
+        $writer->startElement("products");
+
+        foreach ($this->products as $shopProduct) {
+            $writer->startElement('product');
+            $writer->writeAttribute("title", $shopProduct->getTitle());
+            $writer->startElement("summary");
+            $writer->text($shopProduct->getSummaryLine());
+            $writer->endElement();
+            $writer->endElement();
+        }
+        $writer->endElement();
+        $writer->endDocument();
+        print $writer->flush();
+    }
+}
+
 interface IndenityObject
 {
     public function generateId();
@@ -136,9 +173,12 @@ trait PriceUtilites
 }
 
 
-$aa = new CDProduct("a", "a", "b", 1, 1);
+$aa = new BookProduct("aaaa", "bbbb", "cccc", 1,1);
 
-print_r($aa->getSummaryLine());
+$bb = new XmlProductWriter();
+$bb->addProduct($aa);
+$bb->write();
+
 
 $aa = new BookProduct("a", "a", "b", 1, 1);
 
